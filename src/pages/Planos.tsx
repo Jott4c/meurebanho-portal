@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+// Planos page
 import { CheckCircle, ArrowRight, Star } from 'lucide-react';
 
 type PlanTier = 'free' | 'basic' | 'professional' | 'farm' | 'unlimited';

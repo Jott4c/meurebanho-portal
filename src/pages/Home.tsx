@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { 
-  Wifi, WifiOff, Shield, BarChart3, MapPin, Users, Smartphone,
+  WifiOff, Shield, BarChart3, MapPin, Users, Smartphone,
   ArrowRight, CheckCircle, Zap, Clock
 } from 'lucide-react';
 import logo from '../assets/icon.png';
