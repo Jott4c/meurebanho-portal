@@ -1,5 +1,8 @@
-// Planos page
+import { useState } from 'react';
 import { CheckCircle, ArrowRight, Star } from 'lucide-react';
+import CheckoutModal from '../components/CheckoutModal';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
 
 type PlanTier = 'free' | 'basic' | 'professional' | 'farm' | 'unlimited';
 
@@ -81,6 +84,22 @@ const PLANS: Plan[] = [
 ];
 
 export default function Planos() {
+  const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
+  const navigate = useNavigate();
+
+  const handleSubscribeClick = async (plan: Plan) => {
+    if (plan.price > 0) {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate('/login?redirect=/planos');
+        return;
+      }
+      setSelectedPlan(plan);
+    } else {
+      window.open("https://play.google.com/store", "_blank");
+    }
+  };
+
   return (
     <div className="pt-20">
       {/* Hero */}
@@ -145,10 +164,8 @@ export default function Planos() {
                 </ul>
 
                 {/* CTA Button */}
-                <a
-                  href="https://play.google.com/store"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  onClick={() => handleSubscribeClick(plan)}
                   className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all
                     ${plan.recommended
                       ? 'bg-primary-600 hover:bg-primary-700 text-white shadow-md hover:shadow-lg'
@@ -159,7 +176,7 @@ export default function Planos() {
                 >
                   {plan.price === 0 ? 'Começar Grátis' : 'Assinar Agora'}
                   <ArrowRight size={16} />
-                </a>
+                </button>
               </div>
             ))}
           </div>
@@ -170,6 +187,18 @@ export default function Planos() {
           </p>
         </div>
       </section>
+
+      {/* Checkout Modal */}
+      {selectedPlan && (
+        <CheckoutModal 
+          plan={selectedPlan} 
+          onClose={() => setSelectedPlan(null)} 
+          onSuccess={() => {
+            setSelectedPlan(null);
+            alert('Assinatura processada com sucesso! Verifique seu app.');
+          }} 
+        />
+      )}
 
       {/* FAQ Mini */}
       <section className="py-16 bg-neutral-50">
