@@ -136,7 +136,7 @@ export default function Dashboard() {
                     ))}
                   </Pie>
                   <Tooltip 
-                     formatter={(value: number) => [`${value} animais`, 'Quantidade']}
+                     formatter={(value: any) => [`${value} animais`, 'Quantidade']}
                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                   />
                   <Legend verticalAlign="bottom" height={36} iconType="circle" />

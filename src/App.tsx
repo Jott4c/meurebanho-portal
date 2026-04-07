@@ -11,7 +11,7 @@ import SetPassword from './SetPassword';
 import PrivateRoute from './components/PrivateRoute';
 import DashboardLayout from './layouts/DashboardLayout';
 import Dashboard from './pages/app/Dashboard';
-import RebanhoList from './pages/app/RebanhoList';
+// import RebanhoList from './pages/app/RebanhoList';
 
 // Páginas criadas futuramente serão importadas aqui:
 // import RebanhoDetail from './pages/app/RebanhoDetail';
