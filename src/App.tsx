@@ -7,6 +7,7 @@ import Contato from './pages/Contato';
 import Login from './pages/Login';
 import Cadastro from './pages/Cadastro';
 import Privacidade from './pages/Privacidade';
+import ExcluirConta from './pages/ExcluirConta';
 import SetPassword from './SetPassword';
 import PrivateRoute from './components/PrivateRoute';
 import DashboardLayout from './layouts/DashboardLayout';
@@ -46,6 +47,7 @@ function App() {
         <Route path="/login" element={<Layout><Login /></Layout>} />
         <Route path="/cadastro" element={<Layout><Cadastro /></Layout>} />
         <Route path="/privacidade" element={<Layout><Privacidade /></Layout>} />
+        <Route path="/excluir-conta" element={<Layout><ExcluirConta /></Layout>} />
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />

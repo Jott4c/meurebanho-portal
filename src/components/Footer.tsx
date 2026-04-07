@@ -13,6 +13,7 @@ const footerLinks = {
   legal: [
     { label: 'Termos de Uso', href: '#' },
     { label: 'Privacidade', href: '/privacidade' },
+    { label: 'Excluir Conta', href: '/excluir-conta' },
   ],
 };
 
