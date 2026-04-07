@@ -6,6 +6,7 @@ import Planos from './pages/Planos';
 import Contato from './pages/Contato';
 import Login from './pages/Login';
 import Cadastro from './pages/Cadastro';
+import Privacidade from './pages/Privacidade';
 import SetPassword from './SetPassword';
 import PrivateRoute from './components/PrivateRoute';
 import DashboardLayout from './layouts/DashboardLayout';
@@ -44,6 +45,7 @@ function App() {
         <Route path="/contato" element={<Layout><Contato /></Layout>} />
         <Route path="/login" element={<Layout><Login /></Layout>} />
         <Route path="/cadastro" element={<Layout><Cadastro /></Layout>} />
+        <Route path="/privacidade" element={<Layout><Privacidade /></Layout>} />
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
