@@ -6,6 +6,9 @@ import {
   Users,
   ArrowRight,
   ShieldCheck,
+  Zap,
+  Crown,
+  Star,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import {
@@ -17,6 +20,115 @@ import {
   Legend
 } from 'recharts'
 import LoadingSpinner from '../../components/LoadingSpinner'
+import { useEffect, useState } from 'react'
+import { supabase } from '../../lib/supabase'
+
+type PlanTier = 'free' | 'basic' | 'professional' | 'farm' | 'unlimited'
+
+const PLAN_CONFIG: Record<PlanTier, {
+  label: string
+  color: string
+  bg: string
+  border: string
+  gradient: string
+  icon: any
+  maxAnimals: number | null
+  maxUsers: number | null
+}> = {
+  free:         { label: 'Gratuito',      color: 'text-neutral-600',   bg: 'bg-neutral-100',  border: 'border-neutral-200', gradient: 'from-neutral-500 to-neutral-700',     icon: Star,  maxAnimals: 30,   maxUsers: 1 },
+  basic:        { label: 'Básico',        color: 'text-blue-700',      bg: 'bg-blue-50',      border: 'border-blue-200',    gradient: 'from-blue-500 to-blue-700',          icon: Star,  maxAnimals: 100,  maxUsers: 1 },
+  professional: { label: 'Profissional',  color: 'text-purple-700',    bg: 'bg-purple-50',    border: 'border-purple-200',  gradient: 'from-purple-500 to-purple-700',      icon: Zap,   maxAnimals: 300,  maxUsers: 3 },
+  farm:         { label: 'Fazenda',       color: 'text-emerald-700',   bg: 'bg-emerald-50',   border: 'border-emerald-200', gradient: 'from-emerald-500 to-emerald-700',    icon: Zap,   maxAnimals: 1000, maxUsers: 10 },
+  unlimited:    { label: 'Ilimitado',     color: 'text-amber-700',     bg: 'bg-amber-50',     border: 'border-amber-200',   gradient: 'from-amber-400 to-orange-500',       icon: Crown, maxAnimals: null, maxUsers: null },
+}
+
+function PlanBanner({ totalAnimais, funcionariosAtivos, plan }: { totalAnimais: number; funcionariosAtivos: number; plan: PlanTier }) {
+
+  const cfg = PLAN_CONFIG[plan]
+  const Icon = cfg.icon
+  const isUnlimited = plan === 'unlimited'
+
+  const animalPct = cfg.maxAnimals ? Math.min(100, Math.round((totalAnimais / cfg.maxAnimals) * 100)) : 0
+  const userPct   = cfg.maxUsers   ? Math.min(100, Math.round((funcionariosAtivos / cfg.maxUsers) * 100)) : 0
+
+  return (
+    <div className={`rounded-2xl border ${cfg.border} overflow-hidden`}>
+      <div className={`bg-gradient-to-r ${cfg.gradient} p-5 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4`}>
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+            <Icon size={22} />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-white/80">Seu plano atual</p>
+            <p className="text-xl font-black tracking-tight">{cfg.label}</p>
+          </div>
+        </div>
+        {!isUnlimited && (
+          <Link
+            to="/planos"
+            className="flex items-center gap-2 bg-white text-neutral-900 font-semibold text-sm px-5 py-2.5 rounded-xl hover:scale-105 transition-all shadow-md whitespace-nowrap self-start sm:self-auto"
+          >
+            <Zap size={15} className="text-amber-500" />
+            Fazer Upgrade
+          </Link>
+        )}
+      </div>
+
+      {!isUnlimited && (
+        <div className="bg-white px-5 py-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Animais */}
+          <div>
+            <div className="flex justify-between items-center mb-1.5">
+              <span className="text-xs font-medium text-neutral-600">Animais cadastrados</span>
+              <span className={`text-xs font-bold ${animalPct >= 90 ? 'text-red-600' : 'text-neutral-700'}`}>
+                {totalAnimais} / {cfg.maxAnimals}
+              </span>
+            </div>
+            <div className="h-2 bg-neutral-100 rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all ${
+                  animalPct >= 90 ? 'bg-red-500' : animalPct >= 70 ? 'bg-amber-400' : 'bg-emerald-500'
+                }`}
+                style={{ width: `${animalPct}%` }}
+              />
+            </div>
+            {animalPct >= 90 && (
+              <p className="text-xs text-red-600 mt-1">⚠️ Limite quase atingido — considere um upgrade</p>
+            )}
+          </div>
+
+          {/* Equipe */}
+          <div>
+            <div className="flex justify-between items-center mb-1.5">
+              <span className="text-xs font-medium text-neutral-600">Usuários na equipe</span>
+              <span className={`text-xs font-bold ${userPct >= 90 ? 'text-red-600' : 'text-neutral-700'}`}>
+                {funcionariosAtivos} / {cfg.maxUsers}
+              </span>
+            </div>
+            <div className="h-2 bg-neutral-100 rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all ${
+                  userPct >= 90 ? 'bg-red-500' : userPct >= 70 ? 'bg-amber-400' : 'bg-blue-500'
+                }`}
+                style={{ width: `${userPct}%` }}
+              />
+            </div>
+            {cfg.maxUsers === 1 && (
+              <p className="text-xs text-neutral-500 mt-1">Equipe disponível a partir do plano Profissional</p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {isUnlimited && (
+        <div className="bg-white px-5 py-3 text-sm text-neutral-500 flex items-center gap-2">
+          <Crown size={14} className="text-amber-500" />
+          Animais, usuários e propriedades ilimitados — sem restrições.
+        </div>
+      )}
+    </div>
+  )
+}
 
 const COLORS = ['#10b981', '#f59e0b', '#3b82f6', '#6366f1', '#ec4899', '#8b5cf6']
 
@@ -66,6 +178,7 @@ export default function Dashboard() {
     ocorrenciasAbertas = 0,
     ultimasOcorrencias = [],
     funcionariosAtivos = 0,
+    plan = 'free' as PlanTier,
   } = data || {}
 
   // Cálculo simplificado de meta/score de sustentabilidade (PNIB)
@@ -83,6 +196,7 @@ export default function Dashboard() {
         </div>
       </div>
 
+      <PlanBanner totalAnimais={totalAnimais} funcionariosAtivos={funcionariosAtivos} plan={plan} />
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <DashboardCard 
           title="Total de Animais" 
@@ -161,12 +275,12 @@ export default function Dashboard() {
                 <Link to="/app/vacinas" className="text-xs font-medium text-primary-600 hover:text-primary-700">Ver todas</Link>
               </div>
               <div className="space-y-3">
-                {proximasVacinas.length > 0 ? proximasVacinas.map((vacina) => (
+                {proximasVacinas.length > 0 ? proximasVacinas.map((vacina: any) => (
                   <div key={vacina.id} className="flex items-center gap-3 p-3 bg-neutral-50 rounded-xl">
-                    <div className={`w-2 h-2 rounded-full ${vacina.status === 'atrasada' ? 'bg-red-500' : 'bg-amber-400'}`} />
+                    <div className="w-2 h-2 rounded-full bg-primary-500" />
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-neutral-900">{vacina.nome_vacina}</p>
-                      <p className="text-xs text-neutral-500">Previsto para {new Date(vacina.data_prevista).toLocaleDateString('pt-BR')}</p>
+                      <p className="text-sm font-medium text-neutral-900">{vacina.vaccine_type}</p>
+                      <p className="text-xs text-neutral-500">Registrada em {new Date(vacina.application_date).toLocaleDateString('pt-BR')}</p>
                     </div>
                   </div>
                 )) : (
@@ -181,15 +295,15 @@ export default function Dashboard() {
                 <Link to="/app/ocorrencias" className="text-xs font-medium text-primary-600 hover:text-primary-700">Ver todas</Link>
               </div>
               <div className="space-y-3">
-                {ultimasOcorrencias.length > 0 ? ultimasOcorrencias.map((ocorrencia) => (
+                {ultimasOcorrencias.length > 0 ? ultimasOcorrencias.map((ocorrencia: any) => (
                   <div key={ocorrencia.id} className="p-3 bg-neutral-50 rounded-xl">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs font-semibold text-amber-600 uppercase tracking-wide">{ocorrencia.tipo}</span>
-                      <span className="text-xs text-neutral-400">{new Date(ocorrencia.data_ocorrencia).toLocaleDateString('pt-BR')}</span>
+                      <span className="text-xs font-semibold text-amber-600 uppercase tracking-wide">{ocorrencia.occurrence_type}</span>
+                      <span className="text-xs text-neutral-400">{new Date(ocorrencia.occurred_at).toLocaleDateString('pt-BR')}</span>
                     </div>
-                    <p className="text-sm text-neutral-700 line-clamp-1">{ocorrencia.descricao || 'Sem descrição'}</p>
-                    {ocorrencia.animais && (
-                      <p className="text-xs text-neutral-500 mt-1">Brinco: {ocorrencia.animais.brinco} ({ocorrencia.animais.nome})</p>
+                    <p className="text-sm text-neutral-700 line-clamp-1">{ocorrencia.description || 'Sem descrição'}</p>
+                    {ocorrencia.animals && (
+                      <p className="text-xs text-neutral-500 mt-1">Brinco: {ocorrencia.animals.ear_tag}</p>
                     )}
                   </div>
                 )) : (

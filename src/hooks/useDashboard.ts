@@ -3,26 +3,26 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 
 export function useDashboard() {
-  const { propertyId } = useAuth()
+  const { propertyId, user } = useAuth()
 
   return useQuery({
-    queryKey: ['dashboard', propertyId],
+    queryKey: ['dashboard', propertyId, user?.id],
     queryFn: async () => {
-      if (!propertyId) return null
+      if (!propertyId || !user?.id) return null
 
       // Buscar total de animais ativos e os dados para o gráfico
       const { data: animaisData, error: animaisError } = await supabase
-        .from('animais')
-        .select('categoria')
+        .from('animals')
+        .select('category')
         .eq('property_id', propertyId)
-        .eq('status', 'ativo')
+        .eq('status', 'active')
 
       if (animaisError) throw animaisError
 
       const totalAnimais = animaisData.length
 
       const animaisPorCategoria = animaisData.reduce((acc, curr) => {
-        const cat = curr.categoria || 'Outros'
+        const cat = curr.category || 'Outros'
         acc[cat] = (acc[cat] || 0) + 1
         return acc
       }, {} as Record<string, number>)
@@ -34,13 +34,12 @@ export function useDashboard() {
         }))
         .sort((a, b) => b.value - a.value)
 
-      // Vacinas pendentes ou atrasadas
+      // Vacinas (simplificado para vaccinations, filtrando as mais recentes)
       const { count: vacinasPendentes, data: proximasVacinas, error: vacinasError } = await supabase
-        .from('vacinas_lote')
-        .select('id, nome_vacina, data_prevista, status', { count: 'exact' })
+        .from('vaccinations')
+        .select('id, vaccine_type, application_date', { count: 'exact' })
         .eq('property_id', propertyId)
-        .in('status', ['pendente', 'atrasada'])
-        .order('data_prevista', { ascending: true })
+        .order('application_date', { ascending: false })
         .limit(5)
 
       if (vacinasError) throw vacinasError
@@ -52,11 +51,11 @@ export function useDashboard() {
 
       try {
         const { count, data, error } = await supabase
-          .from('ocorrencias')
-          .select('id, tipo, data_ocorrencia, descricao, animais(nome, brinco)', { count: 'exact' })
+          .from('occurrences')
+          .select('id, occurrence_type, occurred_at, description, animals(ear_tag)', { count: 'exact' })
           .eq('property_id', propertyId)
-          .eq('status', 'em_andamento')
-          .order('data_ocorrencia', { ascending: false })
+          .eq('resolved', false)
+          .order('occurred_at', { ascending: false })
           .limit(5)
         
         if (error) throw error
@@ -66,19 +65,33 @@ export function useDashboard() {
         console.warn('Erro ao buscar ocorrências:', err)
       }
 
-      // Funcionários ativos
       let funcionariosAtivos = 0
       try {
         const { count, error } = await supabase
           .from('employees')
           .select('id', { count: 'exact', head: true })
           .eq('property_id', propertyId)
-          .eq('status', 'ativo')
+          .eq('active', true)
         
         if (error) throw error
         funcionariosAtivos = count || 0
       } catch (err) {
          console.warn('Erro ao buscar funcionários:', err)
+      }
+
+      // Buscar plano do usuário
+      let plan = 'free'
+      try {
+        const { data: userData, error: userError } = await supabase
+          .from('users')
+          .select('plan')
+          .eq('id', user?.id)
+          .single()
+        
+        if (userError) throw userError
+        if (userData?.plan) plan = userData.plan
+      } catch (err) {
+        console.warn('Erro ao buscar plano:', err)
       }
 
       return {
@@ -89,6 +102,7 @@ export function useDashboard() {
         ocorrenciasAbertas: ocorrenciasAbertas || 0,
         ultimasOcorrencias: ultimasOcorrencias || [],
         funcionariosAtivos,
+        plan: plan as any,
       }
     },
     enabled: !!propertyId

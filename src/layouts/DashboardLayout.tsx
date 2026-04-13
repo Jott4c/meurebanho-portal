@@ -13,15 +13,23 @@ import {
   Menu,
   X,
   ChevronRight,
+  MapPin,
+  Heart,
+  Leaf,
 } from 'lucide-react'
+import PropertySwitcher from '../components/PropertySwitcher'
+import NewPropertyModal from '../components/NewPropertyModal'
 
 const NAV_ITEMS = [
   { to: '/app', icon: LayoutDashboard, label: 'Dashboard', end: true },
   { to: '/app/rebanho', icon: Beef, label: 'Rebanho' },
+  { to: '/app/piquetes', icon: MapPin, label: 'Piquetes' },
+  { to: '/app/reproducao', icon: Heart, label: 'Reprodução' },
   { to: '/app/vacinas', icon: Syringe, label: 'Vacinas' },
   { to: '/app/ocorrencias', icon: AlertTriangle, label: 'Ocorrências' },
   { to: '/app/equipe', icon: Users, label: 'Equipe' },
   { to: '/app/relatorios', icon: FileBarChart, label: 'Relatórios' },
+  { to: '/app/sustentabilidade', icon: Leaf, label: 'Sustentabilidade' },
   { to: '/app/configuracoes', icon: Settings, label: 'Configurações' },
 ]
 
@@ -31,10 +39,13 @@ function getBreadcrumb(pathname: string): string[] {
 
   const labelMap: Record<string, string> = {
     rebanho: 'Rebanho',
+    piquetes: 'Piquetes',
+    reproducao: 'Reprodução',
     vacinas: 'Vacinas',
     ocorrencias: 'Ocorrências',
     equipe: 'Equipe',
     relatorios: 'Relatórios',
+    sustentabilidade: 'Sustentabilidade',
     configuracoes: 'Configurações',
     novo: 'Novo',
     editar: 'Editar',
@@ -130,10 +141,14 @@ export default function DashboardLayout() {
           <div className="flex items-center gap-3">
             <button
               onClick={toggleSidebar}
-              className="lg:hidden p-2 rounded-lg hover:bg-neutral-100"
+              className="lg:hidden p-2 rounded-lg hover:bg-neutral-100 mr-2"
             >
               <Menu size={20} className="text-neutral-600" />
             </button>
+
+            <PropertySwitcher />
+
+            <div className="h-6 w-px bg-neutral-200 mx-2 hidden sm:block" />
 
             {/* Breadcrumb */}
             <div className="flex items-center gap-1 text-sm">
@@ -167,6 +182,8 @@ export default function DashboardLayout() {
         <main className="flex-1 p-4 lg:p-6 overflow-auto">
           <Outlet />
         </main>
+        
+        <NewPropertyModal />
       </div>
     </div>
   )

@@ -1,13 +1,31 @@
 import { useState } from 'react';
 import { Mail, MessageCircle, Send, CheckCircle, User, AtSign } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 export default function Contato() {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+    setIsLoading(true);
+
+    try {
+      const { error } = await supabase.functions.invoke('contact-form', {
+        body: { name: formData.name, email: formData.email, message: formData.message },
+      });
+
+      if (error) throw error;
+
+      setSubmitted(true);
+    } catch (error) {
+      console.error('Erro ao enviar formulário:', error);
+      alert('Não foi possível enviar a mensagem. Tente novamente mais tarde.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -36,7 +54,7 @@ export default function Contato() {
                 
                 <div className="space-y-6">
                   <a 
-                    href="https://wa.me/5500000000000"
+                    href="https://wa.me/5516981505862"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-4 p-4 bg-emerald-50 rounded-xl border border-emerald-100 hover:bg-emerald-100 transition-colors group"
@@ -51,7 +69,7 @@ export default function Contato() {
                   </a>
 
                   <a 
-                    href="mailto:contato@meurebanho.com.br"
+                    href="mailto:suporte@meurebanho.com"
                     className="flex items-center gap-4 p-4 bg-blue-50 rounded-xl border border-blue-100 hover:bg-blue-100 transition-colors group"
                   >
                     <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
@@ -59,7 +77,7 @@ export default function Contato() {
                     </div>
                     <div>
                       <p className="font-semibold text-neutral-900">E-mail</p>
-                      <p className="text-sm text-neutral-500">contato@meurebanho.com.br</p>
+                      <p className="text-sm text-neutral-500">suporte@meurebanho.com</p>
                     </div>
                   </a>
                 </div>
@@ -136,11 +154,11 @@ export default function Contato() {
 
                   <button
                     type="submit"
-                    className="w-full flex items-center justify-center gap-2 py-3.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl 
-                               transition-all hover:shadow-lg hover:shadow-primary-600/25 active:translate-y-0.5"
+                    className={`w-full flex items-center justify-center gap-2 py-3.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-primary-600/25 active:translate-y-0.5 ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
+                    disabled={isLoading}
                   >
                     <Send size={18} />
-                    Enviar Mensagem
+                    {isLoading ? 'Enviando...' : 'Enviar Mensagem'}
                   </button>
                 </form>
               )}

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, LogOut, User } from 'lucide-react';
+import { Menu, X, LogOut, User, LayoutDashboard } from 'lucide-react';
 import logo from '../assets/icon.png';
 import { supabase } from '../lib/supabase';
 
@@ -90,11 +90,21 @@ export default function Navbar() {
             
             {user ? (
               <div className="flex items-center gap-2 pl-2">
-                <div className="flex items-center gap-2 text-sm font-medium text-neutral-700 px-3 py-2 bg-neutral-50 rounded-lg">
+                <Link
+                  to="/app"
+                  className="flex items-center gap-2 text-sm font-medium text-neutral-700 px-3 py-2 bg-neutral-50 hover:bg-primary-50 hover:text-primary-700 rounded-lg transition-colors"
+                >
                   <User size={16} />
                   <span>{user.user_metadata?.full_name?.split(' ')[0] || 'Minha Conta'}</span>
-                </div>
-                <button 
+                </Link>
+                <Link
+                  to="/app"
+                  className="flex items-center gap-1.5 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold rounded-xl transition-all shadow-sm"
+                >
+                  <LayoutDashboard size={15} />
+                  Painel
+                </Link>
+                <button
                   onClick={() => supabase.auth.signOut()}
                   className="p-2 text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                   title="Sair"
@@ -145,9 +155,16 @@ export default function Navbar() {
           ))}
           {user ? (
             <>
-              <div className="flex px-4 py-3 bg-neutral-50 rounded-xl text-sm font-medium text-neutral-700 mt-2 items-center gap-2">
-                <User size={18} className="text-primary-600" />
-                {user.user_metadata?.full_name || user.email}
+              <Link
+                to="/app"
+                className="flex px-4 py-3 bg-primary-50 rounded-xl text-sm font-semibold text-primary-700 mt-2 items-center gap-2"
+              >
+                <LayoutDashboard size={18} />
+                Ir para o Painel
+              </Link>
+              <div className="flex px-4 py-3 bg-neutral-50 rounded-xl text-sm text-neutral-500 items-center gap-2">
+                <User size={16} />
+                {user.user_metadata?.full_name?.split(' ')[0] || user.email}
               </div>
               <button
                 onClick={() => supabase.auth.signOut()}

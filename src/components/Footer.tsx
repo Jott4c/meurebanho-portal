@@ -8,7 +8,7 @@ const footerLinks = {
   ],
   suporte: [
     { label: 'Contato', href: '/contato' },
-    { label: 'WhatsApp', href: 'https://wa.me/5500000000000', external: true },
+    { label: 'WhatsApp', href: 'https://wa.me/5516981505862', external: true },
   ],
   legal: [
     { label: 'Termos de Uso', href: '#' },

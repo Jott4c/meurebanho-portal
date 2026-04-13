@@ -10,18 +10,22 @@ import Privacidade from './pages/Privacidade';
 import ExcluirConta from './pages/ExcluirConta';
 import SetPassword from './SetPassword';
 import PrivateRoute from './components/PrivateRoute';
+import ScrollToTop from './components/ScrollToTop';
 import DashboardLayout from './layouts/DashboardLayout';
 import Dashboard from './pages/app/Dashboard';
-// import RebanhoList from './pages/app/RebanhoList';
-
-// Páginas criadas futuramente serão importadas aqui:
-// import RebanhoDetail from './pages/app/RebanhoDetail';
-// import RebanhoForm from './pages/app/RebanhoForm';
-// import Vacinas from './pages/app/Vacinas';
-// import Ocorrencias from './pages/app/Ocorrencias';
-// import Equipe from './pages/app/Equipe';
-// import Relatorios from './pages/app/Relatorios';
-// import Configuracoes from './pages/app/Configuracoes';
+import RebanhoList from './pages/app/RebanhoList';
+import RebanhoDetail from './pages/app/RebanhoDetail';
+import RebanhoForm from './pages/app/RebanhoForm';
+import Vacinas from './pages/app/Vacinas';
+import Ocorrencias from './pages/app/Ocorrencias';
+import Equipe from './pages/app/Equipe'
+import Piquetes from './pages/app/Piquetes'
+import Reproducao from './pages/app/Reproducao'
+import Relatorios from './pages/app/Relatorios'
+import Configuracoes from './pages/app/Configuracoes'
+import Sustentabilidade from './pages/app/Sustentabilidade'
+import Importar from './pages/app/Importar'
+import OcorrenciaDetail from './pages/app/OcorrenciaDetail'
 
 function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -36,6 +40,7 @@ function Layout({ children }: { children: React.ReactNode }) {
 function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         {/* Página de definir senha — sem Navbar/Footer */}
         <Route path="/definir-senha" element={<SetPassword />} />
@@ -49,27 +54,32 @@ function App() {
         <Route path="/privacidade" element={<Layout><Privacidade /></Layout>} />
         <Route path="/excluir-conta" element={<Layout><ExcluirConta /></Layout>} />
 
-        {/* Fallback */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-
         {/* --- ROTAS PRIVADAS --- */}
         <Route element={<PrivateRoute />}>
           <Route element={<DashboardLayout />}>
             <Route path="/app" element={<Dashboard />} />
-            {/* 
-              Essas rotas entrarão nas próximas fases:
-              <Route path="/app/rebanho" element={<RebanhoList />} />
-              <Route path="/app/rebanho/novo" element={<RebanhoForm />} />
-              <Route path="/app/rebanho/:id/editar" element={<RebanhoForm />} />
-              <Route path="/app/rebanho/:id" element={<RebanhoDetail />} />
-              <Route path="/app/vacinas" element={<Vacinas />} />
-              <Route path="/app/ocorrencias" element={<Ocorrencias />} />
-              <Route path="/app/equipe" element={<Equipe />} />
-              <Route path="/app/relatorios" element={<Relatorios />} />
-              <Route path="/app/configuracoes" element={<Configuracoes />} /> 
-            */}
+            <Route path="/app/rebanho" element={<RebanhoList />} />
+            <Route path="/app/rebanho/importar" element={<Importar />} />
+            <Route path="/app/sustentabilidade" element={<Sustentabilidade />} />
+            <Route path="/app/rebanho/novo" element={<RebanhoForm />} />
+            <Route path="/app/rebanho/:id/editar" element={<RebanhoForm />} />
+            <Route path="/app/rebanho/:id" element={<RebanhoDetail />} />
+            <Route path="/app/vacinas" element={<Vacinas />} />
+            <Route path="/app/ocorrencias" element={<Ocorrencias />} />
+            <Route path="/app/ocorrencias/:id" element={<OcorrenciaDetail />} />
+            <Route path="/app/equipe" element={<Equipe />} />
+            <Route path="/app/piquetes" element={<Piquetes />} />
+            <Route path="/app/reproducao" element={<Reproducao />} />
+            <Route path="/app/relatorios" element={<Relatorios />} />
+            <Route path="/app/configuracoes" element={<Configuracoes />} />
+            {/* Redireciona rotas /app/* ainda não implementadas de volta ao dashboard */}
+            <Route path="/app/*" element={<Navigate to="/app" replace />} />
           </Route>
         </Route>
+
+        {/* Fallback — deve ser sempre o último */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+
       </Routes>
     </BrowserRouter>
   );
