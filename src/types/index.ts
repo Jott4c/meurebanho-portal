@@ -67,6 +67,8 @@ export interface Employee {
   property_id: string
   user_id?: string
   name: string
+  email?: string
+  invite_status?: 'pending' | 'sent' | 'accepted'
   role?: string
   phone?: string
   daily_hours?: number

@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { usePaddocks } from '../../hooks/usePaddocks'
 import { useBatchUpdateAnimal } from '../../hooks/useAnimals'
 import { supabase } from '../../lib/supabase'

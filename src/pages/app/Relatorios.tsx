@@ -1,15 +1,15 @@
 import { useState } from 'react'
 import { 
-  FileText, PieChart as PieChartIcon, TrendingUp, BarChart2, 
-  Activity, Leaf, Shield, Download, FileSpreadsheet, 
+  PieChart as PieChartIcon, TrendingUp, 
+  Activity, Shield, Download, FileSpreadsheet, 
   ClipboardList, ArrowUpRight, ArrowDownRight, Users,
-  Zap, AlertCircle, CheckCircle2, Search
+  Zap
 } from 'lucide-react'
 import { useReports } from '../../hooks/useReports'
 import { 
   PieChart as RePie, Pie, Cell, ResponsiveContainer, 
   BarChart, Bar, XAxis, YAxis, Tooltip, Legend,
-  AreaChart, Area, CartesianGrid, ComposedChart, Line
+  Area, CartesianGrid, ComposedChart
 } from 'recharts'
 import LoadingSpinner from '../../components/LoadingSpinner'
 import { ANIMAL_CATEGORY_LABELS, OCCURRENCE_TYPE_LABELS } from '../../types'

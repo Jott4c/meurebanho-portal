@@ -5,8 +5,10 @@ import EmptyState from '../../components/EmptyState'
 import LoadingSpinner from '../../components/LoadingSpinner'
 import ConfirmModal from '../../components/ConfirmModal'
 import { usePaddocks } from '../../hooks/usePaddocks'
+import { useAuth } from '../../contexts/AuthContext'
 
 export default function Piquetes() {
+  const { propertyId } = useAuth()
   const { data: paddocks, isLoading, createPaddock, deletePaddock, isCreating, isDeleting } = usePaddocks()
   const [isAdding, setIsAdding] = useState(false)
   const [newName, setNewName] = useState('')
@@ -21,6 +23,7 @@ export default function Piquetes() {
     if (!newName) return
 
     createPaddock({
+      property_id: propertyId!,
       name: newName,
       area: newArea ? parseFloat(newArea) : undefined,
       capacity: newCapacity ? parseInt(newCapacity) : undefined
@@ -152,7 +155,7 @@ export default function Piquetes() {
                       setPaddockToDelete({ id: paddock.id, name: paddock.name })
                       setDeleteModalOpen(true)
                     }}
-                    title={paddock.animal_count > 0 ? 'Piquete com animais' : 'Excluir Piquete'}
+                    title={(paddock.animal_count || 0) > 0 ? 'Piquete com animais' : 'Excluir Piquete'}
                     className={`p-2 rounded-lg transition-colors opacity-0 group-hover:opacity-100 ${
                       (paddock.animal_count || 0) > 0 
                       ? 'text-neutral-300 cursor-not-allowed' 

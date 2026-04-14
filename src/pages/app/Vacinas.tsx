@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
-import { Syringe, AlertCircle, CheckCircle2, Clock } from 'lucide-react'
+import { Syringe, CheckCircle2 } from 'lucide-react'
 import LoadingSpinner from '../../components/LoadingSpinner'
 import EmptyState from '../../components/EmptyState'
 

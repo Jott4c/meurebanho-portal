@@ -1,4 +1,4 @@
-import { Settings, Home, User, Save, Loader2, MapPin, Maximize2, Shield, Zap, TrendingUp, CreditCard, CheckCircle2 } from 'lucide-react'
+import { Settings, Home, User, Save, Loader2, MapPin, Maximize2, Shield, Zap, CheckCircle2 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import LoadingSpinner from '../../components/LoadingSpinner'
 import { useProperty } from '../../hooks/useProperty'

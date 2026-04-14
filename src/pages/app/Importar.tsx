@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
-import { FileUp, Table, CheckCircle, AlertTriangle, ArrowRight, Loader2, Download, HelpCircle, CheckCircle2, ChevronRight, X } from 'lucide-react'
-import { Link, useNavigate } from 'react-router-dom'
+import { FileUp, Table, CheckCircle, AlertTriangle, Loader2, Download, HelpCircle, CheckCircle2, ChevronRight, X } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { useMassImport, type ImportRow, type ImportOptions } from '../../hooks/useMassImport'
 import * as XLSX from 'xlsx'
 
@@ -54,7 +54,7 @@ function ConfirmImportModal({ isOpen, onClose, onConfirm, count, hasWeight, hasM
               <div className="w-2 h-2 rounded-full bg-emerald-500" />
               <span className="text-sm font-bold text-neutral-700">Dados Básicos (Obrigatório)</span>
             </div>
-            <Check size={18} className="text-emerald-500" strokeWidth={3} />
+            <Check size={18} className="text-emerald-500" />
           </div>
 
           {hasWeight && (
@@ -119,11 +119,9 @@ function Check({ size, className }: { size: number, className: string }) {
 }
 
 export default function Importar() {
-  const navigate = useNavigate()
-  const { parseFile, importAnimals, isProcessing, progress } = useMassImport()
+  const { parseFile, importAnimals, progress } = useMassImport()
   
   const [step, setStep] = useState<Step>('file')
-  const [file, setFile] = useState<File | null>(null)
   const [rawData, setRawData] = useState<ImportRow[]>([])
   const [headers, setHeaders] = useState<string[]>([])
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
@@ -159,7 +157,6 @@ export default function Importar() {
 
   const processFile = async (selectedFile: File) => {
     try {
-      setFile(selectedFile)
       const data = await parseFile(selectedFile)
       if (data.length > 0) {
         setRawData(data)

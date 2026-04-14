@@ -1,4 +1,4 @@
-import { ShieldCheck, Leaf, CheckCircle2, AlertCircle, Info, TrendingUp, Award, ArrowUpRight, Activity } from 'lucide-react'
+import { ShieldCheck, Leaf, CheckCircle2, Info, TrendingUp, Award, ArrowUpRight, Activity } from 'lucide-react'
 import { useDashboard } from '../../hooks/useDashboard'
 import LoadingSpinner from '../../components/LoadingSpinner'
 
@@ -158,13 +158,7 @@ export default function Sustentabilidade() {
   )
 }
 
-function PillarCard({ title, score, icon: Icon, description, status }: any) {
-  const statusColors: any = {
-    success: 'text-emerald-500 bg-emerald-50 border-emerald-100',
-    warning: 'text-amber-500 bg-amber-50 border-amber-100',
-    important: 'text-red-500 bg-red-50 border-red-100',
-  }
-
+function PillarCard({ title, score, icon: Icon, description }: any) {
   return (
     <div className="bg-white p-5 rounded-2xl border border-neutral-200 shadow-sm">
       <div className="flex justify-between items-start mb-4">

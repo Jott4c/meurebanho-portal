@@ -4,9 +4,9 @@ import { supabase } from '../../lib/supabase'
 import { 
   ArrowLeft, Calendar, User, Activity, 
   Stethoscope, FileText, Trash2, Tag, 
-  ChevronRight, ExternalLink, Clock,
+  ChevronRight, Clock,
   AlertCircle, Shield, Camera, Image as ImageIcon,
-  CheckCircle2, X
+  X
 } from 'lucide-react'
 import LoadingSpinner from '../../components/LoadingSpinner'
 import { OCCURRENCE_TYPE_LABELS, SEVERITY_LABELS } from '../../types'
@@ -316,13 +316,12 @@ export default function OcorrenciaDetail() {
       {/* Confirm Delete Modal */}
       <ConfirmModal
         open={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
+        onCancel={() => setIsDeleteModalOpen(false)}
         onConfirm={() => deleteMutation.mutate()}
         title="Excluir Ocorrência"
         message="Tem certeza que deseja excluir permanentemente este registro sanitário? Esta ação não poderá ser desfeita."
-        confirmLabel="Sim, Excluir Registro"
-        confirmVariant="danger"
-        isLoading={deleteMutation.isPending}
+        confirmLabel={deleteMutation.isPending ? 'Excluindo...' : "Sim, Excluir Registro"}
+        variant="danger"
       />
     </div>
   )

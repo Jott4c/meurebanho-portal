@@ -3,9 +3,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import { 
-  AlertTriangle, Plus, Search, Filter, Trash2, 
+  AlertTriangle, Plus, Search, Trash2, 
   ChevronRight, Calendar, User, Activity, 
-  ArrowRight, CheckCircle2, MoreHorizontal,
+  ArrowRight,
   Stethoscope, Clock, Shield, Eye, X
 } from 'lucide-react'
 import LoadingSpinner from '../../components/LoadingSpinner'

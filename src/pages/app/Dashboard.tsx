@@ -20,8 +20,6 @@ import {
   Legend
 } from 'recharts'
 import LoadingSpinner from '../../components/LoadingSpinner'
-import { useEffect, useState } from 'react'
-import { supabase } from '../../lib/supabase'
 
 type PlanTier = 'free' | 'basic' | 'professional' | 'farm' | 'unlimited'
 

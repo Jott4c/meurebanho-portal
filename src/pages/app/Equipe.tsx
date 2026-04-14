@@ -1,11 +1,9 @@
 import { 
-  Users, UserPlus, Mail, Phone, MoreVertical, 
-  Trash2, Power, Loader2, Activity, Shield,
-  CheckCircle2, Clock, RotateCcw, XCircle,
-  ChevronRight, Calendar
+  Users, UserPlus, Mail, Phone, 
+  Trash2, Power, Activity, Shield,
+  CheckCircle2, Clock, RotateCcw
 } from 'lucide-react'
 import { useState } from 'react'
-import EmptyState from '../../components/EmptyState'
 import LoadingSpinner from '../../components/LoadingSpinner'
 import ConfirmModal from '../../components/ConfirmModal'
 import { useEmployees } from '../../hooks/useEmployees'
@@ -18,13 +16,17 @@ export default function Equipe() {
     deleteEmployee, 
     toggleStatus, 
     isDeleting,
-    resendInvite,
-    isResending 
+    resendInvite
   } = useEmployees()
   
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [employeeToDelete, setEmployeeToDelete] = useState<{ id: string, name: string } | null>(null)
   const [inviteModalOpen, setInviteModalOpen] = useState(false)
+
+  const confirmDelete = (id: string, name: string) => {
+    setEmployeeToDelete({ id, name })
+    setDeleteModalOpen(true)
+  }
 
   const handleDelete = () => {
     if (employeeToDelete) {

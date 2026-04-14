@@ -1,12 +1,10 @@
 import { useState } from 'react'
-import { useAnimals, useDeleteAnimal, useBatchDeleteAnimal, useBatchUpdateAnimal } from '../../hooks/useAnimals'
+import { useAnimals, useBatchUpdateAnimal } from '../../hooks/useAnimals'
 import { usePaddocks } from '../../hooks/usePaddocks'
 import { Link, useSearchParams } from 'react-router-dom'
-import { Plus, Search, Filter, Edit2, Trash2, Eye, FileUp, CheckSquare, Square, X, Check, ArrowRight, Download, RotateCcw, ChevronRight, CheckCircle2, MapPin } from 'lucide-react'
+import { Plus, Search, Filter, Edit2, Eye, FileUp, CheckSquare, Square, X, Check, Download, RotateCcw, MapPin } from 'lucide-react'
 import LoadingSpinner from '../../components/LoadingSpinner'
 import EmptyState from '../../components/EmptyState'
-import Pagination from '../../components/Pagination'
-import ConfirmModal from '../../components/ConfirmModal'
 import { ANIMAL_CATEGORY_LABELS, ANIMAL_STATUS_LABELS } from '../../types'
 import { supabase } from '../../lib/supabase'
 import * as XLSX from 'xlsx'
@@ -186,7 +184,7 @@ export default function RebanhoList() {
   const { data: paddocks } = usePaddocks()
   const batchUpdateMutation = useBatchUpdateAnimal()
 
-  const calculateAge = (birthDate: string | null) => {
+  const calculateAge = (birthDate?: string | null) => {
     if (!birthDate) return '-'
     const birth = new Date(birthDate)
     const now = new Date()

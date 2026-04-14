@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CheckCircle, ArrowRight, Star, Zap, Shield, Sparkles } from 'lucide-react';
+import { CheckCircle, ArrowRight, Star, Sparkles } from 'lucide-react';
 import CheckoutModal from '../components/CheckoutModal';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';

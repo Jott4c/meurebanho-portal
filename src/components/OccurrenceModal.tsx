@@ -6,8 +6,8 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import { 
   Loader2, X, AlertTriangle, Calendar, FileText, 
-  Activity, Weight, User, Camera, Image as ImageIcon,
-  Trash2, Plus
+  Activity, Weight, Camera, Image as ImageIcon,
+  Trash2
 } from 'lucide-react'
 import { OCCURRENCE_TYPE_LABELS, SEVERITY_LABELS } from '../types'
 import { useState, useRef } from 'react'

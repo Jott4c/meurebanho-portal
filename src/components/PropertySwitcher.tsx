@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
-import { ChevronDown, Home, Plus, Check, Loader2 } from 'lucide-react'
+import { ChevronDown, Home, Plus, Check } from 'lucide-react'
 
 export default function PropertySwitcher() {
   const { propertyId, properties, switchProperty } = useAuth()

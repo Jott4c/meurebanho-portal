@@ -1,5 +1,4 @@
 import { Heart, Baby, FlaskConical, Calendar, ChevronRight, AlertCircle, Plus } from 'lucide-react'
-import EmptyState from '../../components/EmptyState'
 import LoadingSpinner from '../../components/LoadingSpinner'
 import { useReproduction } from '../../hooks/useReproduction'
 

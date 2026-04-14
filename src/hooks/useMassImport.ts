@@ -4,7 +4,7 @@ import * as XLSX from 'xlsx'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import { useQueryClient } from '@tanstack/react-query'
-import type { Animal, AnimalCategory, AnimalStatus } from '../types'
+import type { AnimalCategory, AnimalStatus } from '../types'
 
 export type ImportRow = Record<string, any>
 
