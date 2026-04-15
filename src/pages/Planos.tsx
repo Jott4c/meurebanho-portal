@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { 
-  CheckCircle, ArrowRight, Star, Sparkles, Zap, Crown, 
+  CheckCircle, Star, Sparkles, Zap, Crown, 
   Shield, Rocket, Infinity, ChevronRight, TrendingUp, RotateCcw
 } from 'lucide-react';
 import CheckoutModal from '../components/CheckoutModal';
