@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 
 export function useDashboard() {
-  const { propertyId, user } = useAuth()
+  const { propertyId, user, profile } = useAuth()
 
   return useQuery({
     queryKey: ['dashboard', propertyId, user?.id],
@@ -80,7 +80,7 @@ export function useDashboard() {
       }
 
       // Buscar plano do usuário
-      let plan = 'free'
+      let plan = profile?.plan || 'free'
       try {
         const { data: userData, error: userError } = await supabase
           .from('users')
@@ -88,10 +88,12 @@ export function useDashboard() {
           .eq('id', user?.id)
           .single()
         
+        console.log('[useDashboard] Plan query:', { userData, userError, userId: user?.id, profilePlan: profile?.plan })
+        
         if (userError) throw userError
         if (userData?.plan) plan = userData.plan
       } catch (err) {
-        console.warn('Erro ao buscar plano:', err)
+        console.warn('[useDashboard] Erro ao buscar plano:', err, '| fallback:', profile?.plan)
       }
 
       return {

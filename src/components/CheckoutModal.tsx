@@ -4,15 +4,17 @@ import { supabase } from '../lib/supabase';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
-const stripePromise = loadStripe('pk_test_51T8iuGHYv4RakNi3XKKWsdV7upUk13OeEoatObOMO0H5pr5OtfLXZsre2GR67ld2k0ItVc75kPEP5Iztxi2eTfXF00LRYYcrRh');
+const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY || 'pk_test_51T8iuGHYv4RakNi3XKKWsdV7upUk13OeEoatObOMO0H5pr5OtfLXZsre2GR67ld2k0ItVc75kPEP5Iztxi2eTfXF00LRYYcrRh';
+const stripePromise = loadStripe(stripePublicKey);
 
 interface CheckoutModalProps {
   plan: { id: string; name: string; price: number; billingCycle: 'month' | 'year' };
   onClose: () => void;
   onSuccess: () => void;
+  onRefreshProfile?: () => Promise<void>;
 }
 
-function CheckoutForm({ plan, onClose, onSuccess }: CheckoutModalProps) {
+function CheckoutForm({ plan, onClose, onSuccess, onRefreshProfile }: CheckoutModalProps) {
   const stripe = useStripe();
   const elements = useElements();
   
@@ -71,6 +73,11 @@ function CheckoutForm({ plan, onClose, onSuccess }: CheckoutModalProps) {
       if (data?.client_secret && (data.status === 'incomplete' || data.status === 'requires_action')) {
          const { error: confirmError } = await stripe.confirmCardPayment(data.client_secret);
          if (confirmError) throw new Error(confirmError.message);
+      }
+
+      // Refresh the user profile to pick up the new plan
+      if (onRefreshProfile) {
+        await onRefreshProfile();
       }
 
       setStep('success');

@@ -18,8 +18,11 @@ interface AuthContextType {
   loading: boolean
   propertyId: string | null
   properties: Property[]
+  planBillingCycle: 'month' | 'year'
+  planExpirationDate: string | null
   switchProperty: (id: string) => void
   refreshProperties: () => Promise<void>
+  refreshProfile: () => Promise<void>
   signOut: () => Promise<void>
 }
 
@@ -32,6 +35,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
   const [properties, setProperties] = useState<Property[]>([])
   const [propertyId, setPropertyId] = useState<string | null>(localStorage.getItem('mrb_last_property'))
+  const [planBillingCycle, setPlanBillingCycle] = useState<'month' | 'year'>('month')
+  const [planExpirationDate, setPlanExpirationDate] = useState<string | null>(null)
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -64,6 +69,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.warn('Erro ao carregar perfil:', error.message)
         return
       }
+
+      // Safety net: verificar se a assinatura venceu + carregar billing_cycle
+      if (data.plan && data.plan !== 'free') {
+        try {
+          const { data: sub } = await supabase
+            .from('subscriptions')
+            .select('status, current_period_end, billing_cycle')
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single()
+
+          if (sub) {
+            const isExpired = sub.current_period_end && new Date(sub.current_period_end) < new Date()
+            const isCanceled = sub.status === 'canceled' || sub.status === 'failed'
+
+            if (isExpired || isCanceled) {
+              console.warn('[AuthContext] Assinatura vencida ou cancelada, revertendo para free')
+              await supabase
+                .from('users')
+                .update({ plan: 'free', updated_at: new Date().toISOString() })
+                .eq('id', userId)
+              data.plan = 'free'
+              setPlanBillingCycle('month')
+              setPlanExpirationDate(null)
+            } else {
+              // Atualizar ciclo de cobrança da assinatura ativa
+              setPlanBillingCycle((sub.billing_cycle as 'month' | 'year') || 'month')
+              setPlanExpirationDate(sub.current_period_end)
+            }
+          }
+        } catch (subErr) {
+          console.warn('Erro ao verificar assinatura:', subErr)
+        }
+      } else {
+        setPlanBillingCycle('month')
+        setPlanExpirationDate(null)
+      }
+
       setProfile(data)
     } catch (err) {
       console.error('Erro ao carregar perfil:', err)
@@ -115,6 +159,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (user) await loadProperties(user.id)
   }
 
+  const refreshProfile = async () => {
+    if (user) await loadProfile(user.id)
+  }
+
   const signOut = async () => {
     await supabase.auth.signOut()
     setPropertyId(null)
@@ -130,9 +178,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       session, 
       loading, 
       propertyId, 
-      properties, 
+      properties,
+      planBillingCycle,
+      planExpirationDate,
       switchProperty,
       refreshProperties,
+      refreshProfile,
       signOut 
     }}>
       {children}

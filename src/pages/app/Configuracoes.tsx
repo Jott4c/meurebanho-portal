@@ -1,13 +1,53 @@
-import { Settings, Home, User, Save, Loader2, MapPin, Maximize2, Shield, Zap, CheckCircle2 } from 'lucide-react'
+import { Settings, Home, User, Save, Loader2, MapPin, Maximize2, Shield, Zap, CheckCircle2, AlertTriangle } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import LoadingSpinner from '../../components/LoadingSpinner'
 import { useProperty } from '../../hooks/useProperty'
 import { useAuth } from '../../contexts/AuthContext'
+import { supabase } from '../../lib/supabase'
+import ConfirmModal from '../../components/ConfirmModal'
 
 export default function Configuracoes() {
   const { data: property, isLoading: loadingProperty, updateProperty, isUpdating } = useProperty()
-  const { user, profile } = useAuth()
+  const { user, profile, refreshProfile } = useAuth()
   const [activeTab, setActiveTab] = useState<'property' | 'profile'>('property')
+  const [isCancelling, setIsCancelling] = useState(false)
+  
+  const [modalState, setModalState] = useState<{
+    open: boolean;
+    title: string;
+    message: string;
+    variant?: 'danger' | 'warning' | 'default';
+    hideCancel?: boolean;
+    confirmLabel?: string;
+    onConfirm?: () => void;
+    onCancel?: () => void;
+  }>({ open: false, title: '', message: '' })
+
+  const confirmAsync = (title: string, message: string, variant: 'danger' | 'default' = 'default'): Promise<boolean> => {
+    return new Promise((resolve) => {
+      setModalState({
+        open: true,
+        title,
+        message,
+        variant,
+        onConfirm: () => { resolve(true); setModalState(s => ({ ...s, open: false })) },
+        onCancel: () => { resolve(false); setModalState(s => ({ ...s, open: false })) }
+      })
+    })
+  }
+
+  const alertAsync = (title: string, message: string): Promise<void> => {
+    return new Promise((resolve) => {
+      setModalState({
+        open: true,
+        title,
+        message,
+        hideCancel: true,
+        confirmLabel: 'OK',
+        onConfirm: () => { resolve(); setModalState(s => ({ ...s, open: false })) }
+      })
+    })
+  }
 
   const [farmName, setFarmName] = useState('')
   const [stateCode, setStateCode] = useState('')
@@ -34,13 +74,58 @@ export default function Configuracoes() {
       total_area_hectares: totalArea ? parseFloat(totalArea) : undefined,
       pasture_area_hectares: pastureArea ? parseFloat(pastureArea) : undefined
     }, {
-      onSuccess: () => alert('Configurações da propriedade salvas com sucesso!')
+      onSuccess: () => alertAsync('Sucesso', 'Configurações da propriedade salvas com sucesso!')
     })
+  }
+
+  const handleCancelSubscription = async () => {
+    const isConfirmed = await confirmAsync(
+      'Cancelar Assinatura Premium',
+      'Tem certeza que deseja cancelar sua assinatura?\n\n- Em até 7 dias da compra: Reembolso total e cancelamento imediato.\n- Após 7 dias: Você usa o plano até o final do período pre-pago. Após a validade, a conta volta a ser Gratuita e não será mais cobrada.',
+      'danger'
+    )
+    
+    if (!isConfirmed) return
+
+    try {
+      setIsCancelling(true)
+      // Chamada pra Edge Function
+      const { data, error } = await supabase.functions.invoke('stripe-cancel-subscription')
+
+      if (error) {
+        throw new Error(error.message)
+      }
+
+      if (data && data.success === false) {
+        throw new Error(data.error || 'Erro desconhecido ao processar cancelamento.')
+      }
+
+      await refreshProfile()
+      
+      if (data && data.type === 'immediate_refund') {
+        await alertAsync(
+          'Cancelamento Realizado',
+          'Sua assinatura foi cancelada imediatamente e o estorno foi solicitado. Sua conta voltou para o plano Gratuito.'
+        )
+      } else {
+        await alertAsync(
+          'Cancelamento Agendado',
+          'Sua solicitação foi processada com sucesso! O acesso premium continuará ativo até o fim do seu ciclo atual e, após isso, sua conta voltará para o plano Gratuito.'
+        )
+      }
+
+    } catch (err: any) {
+      console.error(err)
+      await alertAsync('Erro no Cancelamento', err.message || 'Ocorreu um erro ao processar o cancelamento.')
+    } finally {
+      setIsCancelling(false)
+    }
   }
 
   if (loadingProperty) return <LoadingSpinner message="Carregando configurações..." />
 
   const isUnlimited = profile?.plan?.toLowerCase() === 'unlimited'
+  const hasPaidPlan = profile?.plan && profile.plan !== 'free'
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -213,8 +298,40 @@ export default function Configuracoes() {
                </p>
             </div>
           </div>
+
+          {hasPaidPlan && (
+            <div className="bg-red-50 p-8 rounded-[2.5rem] border border-red-100 shadow-sm space-y-4">
+              <label className="text-[10px] font-black text-red-500 uppercase tracking-[0.2em] ml-2">Zona de Perigo</label>
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>
+                  <h4 className="font-bold text-red-900">Cancelar Assinatura Premium</h4>
+                  <p className="text-sm text-red-700/80 font-medium">Cancelamentos dentro de 7 dias recebem reembolso automático (Art. 49). Após 7 dias, você tem acesso até o fim do ciclo pago. A renovação será desativada.</p>
+                </div>
+                <button
+                  onClick={handleCancelSubscription}
+                  disabled={isCancelling}
+                  className="flex items-center gap-2 px-6 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold transition-all shadow-lg shadow-red-600/20 whitespace-nowrap disabled:opacity-50"
+                >
+                  {isCancelling ? <Loader2 size={16} className="animate-spin" /> : <AlertTriangle size={16} />}
+                  {isCancelling ? 'Cancelando...' : 'Cancelar Assinatura'}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
+
+      {/* Global Setting Modal */}
+      <ConfirmModal
+        open={modalState.open}
+        title={modalState.title}
+        message={modalState.message}
+        variant={modalState.variant}
+        hideCancel={modalState.hideCancel}
+        confirmLabel={modalState.confirmLabel}
+        onConfirm={() => modalState.onConfirm?.()}
+        onCancel={() => modalState.onCancel?.()}
+      />
     </div>
   )
 }

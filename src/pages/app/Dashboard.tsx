@@ -11,6 +11,7 @@ import {
   Star,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { useAuth } from '../../contexts/AuthContext'
 import {
   PieChart,
   Pie,
@@ -45,9 +46,20 @@ function PlanBanner({ totalAnimais, funcionariosAtivos, plan }: { totalAnimais: 
   const cfg = PLAN_CONFIG[plan]
   const Icon = cfg.icon
   const isUnlimited = plan === 'unlimited'
+  const { planExpirationDate } = useAuth()
 
   const animalPct = cfg.maxAnimals ? Math.min(100, Math.round((totalAnimais / cfg.maxAnimals) * 100)) : 0
   const userPct   = cfg.maxUsers   ? Math.min(100, Math.round((funcionariosAtivos / cfg.maxUsers) * 100)) : 0
+
+  const formatExpirationDate = (dateString: string | null) => {
+    if (!dateString) return '';
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('pt-BR');
+    } catch {
+      return '';
+    }
+  };
 
   return (
     <div className={`rounded-2xl border ${cfg.border} overflow-hidden`}>
@@ -58,7 +70,14 @@ function PlanBanner({ totalAnimais, funcionariosAtivos, plan }: { totalAnimais: 
           </div>
           <div>
             <p className="text-sm font-medium text-white/80">Seu plano atual</p>
-            <p className="text-xl font-black tracking-tight">{cfg.label}</p>
+            <div className="flex items-center gap-2">
+              <p className="text-xl font-black tracking-tight">{cfg.label}</p>
+              {plan !== 'free' && planExpirationDate && (
+                <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full font-medium">
+                  Válido até {formatExpirationDate(planExpirationDate)}
+                </span>
+              )}
+            </div>
           </div>
         </div>
         {!isUnlimited && (
@@ -155,6 +174,7 @@ function DashboardCard({ title, value, icon: Icon, colorClass, linkTo }: any) {
 
 export default function Dashboard() {
   const { data, isLoading, error } = useDashboard()
+  const { profile } = useAuth()
 
   if (isLoading) {
     return <LoadingSpinner message="Carregando resumo da propriedade..." />
@@ -176,8 +196,10 @@ export default function Dashboard() {
     ocorrenciasAbertas = 0,
     ultimasOcorrencias = [],
     funcionariosAtivos = 0,
-    plan = 'free' as PlanTier,
   } = data || {}
+
+  // Use profile.plan as authoritative source (works even without a property)
+  const plan = (profile?.plan || data?.plan || 'free') as PlanTier
 
   // Cálculo simplificado de meta/score de sustentabilidade (PNIB)
   const scoreBase = 100

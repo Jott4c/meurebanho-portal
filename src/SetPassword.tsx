@@ -119,6 +119,24 @@ export default function SetPassword() {
 
       if (error) throw error;
 
+      // Mark invite as accepted
+      const userId = session?.user?.id;
+      if (userId) {
+        // Update employee invite_status
+        await supabase
+          .from('employees')
+          .update({ invite_status: 'accepted', user_id: userId })
+          .eq('email', session.user.email)
+          .in('invite_status', ['pending', 'sent']);
+
+        // Update invite record
+        await supabase
+          .from('invites')
+          .update({ status: 'accepted' })
+          .eq('invited_email', session.user.email)
+          .in('status', ['pending', 'sent']);
+      }
+
       setSuccess(true);
     } catch (err: any) {
       console.error(err);
