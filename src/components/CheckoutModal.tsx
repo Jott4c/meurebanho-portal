@@ -82,7 +82,21 @@ function CheckoutForm({ plan, onClose, onSuccess, onRefreshProfile }: CheckoutMo
 
       setStep('success');
     } catch (err: any) {
-      setError(err.message || 'Erro inesperado.');
+      console.error('Checkout error:', err);
+      
+      // Mapeamento de erros amigáveis para erros que acontecem no browser/SDK
+      const localizeError = (message: string) => {
+        const msg = message.toLowerCase();
+        if (msg.includes('declined')) return 'Cartão recusado. Tente outro cartão.';
+        if (msg.includes('insufficient funds')) return 'Saldo insuficiente no cartão.';
+        if (msg.includes('expired')) return 'Cartão vencido. Verifique a validade.';
+        if (msg.includes('security code is incorrect') || msg.includes('cvc')) return 'Código de segurança (CVC) incorreto.';
+        if (msg.includes('number is incorrect')) return 'Número do cartão inválido.';
+        if (msg.includes('processing')) return 'Erro ao processar. Tente novamente.';
+        return message;
+      };
+
+      setError(localizeError(err.message || 'Erro inesperado no checkout.'));
     } finally {
       setLoading(false);
     }
